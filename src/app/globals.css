@@ -1,26 +1,325 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-background: #fbf5e0;
+  --color-foreground: #766161;
+
+  --color-cream: #fbf5e0;
+  --color-bistre: #766161;
+  --color-coffee-dark: #4A362D;
+  --color-coffee-mocha: #D4C5B9;
+  --color-adrenaline: #C89F70;
+  --color-gold: #8B6914;
+  --color-warm-white: #FAF3E8;
+
+  --font-sans: var(--font-outfit), sans-serif;
+  --font-mono: var(--font-fira-code), monospace;
+  --font-display: var(--font-inter), var(--font-outfit), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ------------------------------------------------------------------ */
+/*  Root Design Tokens                                                 */
+/* ------------------------------------------------------------------ */
+:root {
+  --background: #fbf5e0;
+  --foreground: #766161;
+  --glass-bg: rgba(251, 245, 224, 0.35);
+  --glass-border: rgba(118, 97, 97, 0.12);
+  --glass-shadow: rgba(74, 54, 45, 0.08);
+  --scroll-velocity: 0;
 }
 
+/* ------------------------------------------------------------------ */
+/*  Base                                                               */
+/* ------------------------------------------------------------------ */
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #4A362D;
+  color: #fbf5e0;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Custom Scrollbar                                                   */
+/* ------------------------------------------------------------------ */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(118, 97, 97, 0.3);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(118, 97, 97, 0.5);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Glassmorphism Panels                                               */
+/* ------------------------------------------------------------------ */
+.glass-panel {
+  background: var(--glass-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  box-shadow:
+    0 8px 32px var(--glass-shadow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+}
+
+.glass-panel-dark {
+  background: rgba(74, 54, 45, 0.25);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(118, 97, 97, 0.15);
+  box-shadow:
+    0 8px 32px rgba(74, 54, 45, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  border-radius: 20px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  3D Tilt Cards                                                      */
+/* ------------------------------------------------------------------ */
+.tilt-card {
+  transform-style: preserve-3d;
+  perspective: 1000px;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform;
+}
+
+.tilt-card-inner {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Kinetic Typography                                                 */
+/* ------------------------------------------------------------------ */
+.kinetic-text {
+  font-family: var(--font-display);
+  font-variation-settings: 'wght' calc(700 + var(--scroll-velocity, 0) * 2);
+  transition: font-variation-settings 0.15s ease-out;
+}
+
+.kinetic-headline {
+  font-family: var(--font-display);
+  font-variation-settings: 'wght' calc(900 + var(--scroll-velocity, 0) * 0.5);
+  font-style: italic;
+  transition: font-variation-settings 0.1s ease-out;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Speedometer Line                                                   */
+/* ------------------------------------------------------------------ */
+.speedometer-track {
+  position: relative;
+  width: 3px;
+  background: rgba(118, 97, 97, 0.12);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.speedometer-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: linear-gradient(to top, #C89F70, #8B6914);
+  border-radius: 2px;
+  transition: height 0.15s ease-out;
+  box-shadow: 0 0 12px rgba(200, 159, 112, 0.5);
+}
+
+.speedometer-notch {
+  position: absolute;
+  left: -4px;
+  width: 11px;
+  height: 1px;
+  background: rgba(118, 97, 97, 0.2);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Section Utilities                                                  */
+/* ------------------------------------------------------------------ */
+.section-container {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  z-index: 20;
+  pointer-events: none;
+}
+
+.section-container > * {
+  pointer-events: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Menu Card Glow                                                     */
+/* ------------------------------------------------------------------ */
+.menu-card {
+  position: relative;
+  overflow: hidden;
+}
+
+.menu-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(200, 159, 112, 0.0), rgba(200, 159, 112, 0.0));
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  transition: background 0.5s ease;
+  pointer-events: none;
+}
+
+.menu-card:hover::before,
+.menu-card.active::before {
+  background: linear-gradient(135deg, rgba(200, 159, 112, 0.6), rgba(139, 105, 20, 0.3));
+}
+
+.menu-card.active {
+  box-shadow:
+    0 0 30px rgba(200, 159, 112, 0.15),
+    0 8px 32px var(--glass-shadow);
+}
+
+/* ------------------------------------------------------------------ */
+/*  CTA Glow Button                                                    */
+/* ------------------------------------------------------------------ */
+.cta-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 36px;
+  border-radius: 999px;
+  overflow: hidden;
+  font-weight: 700;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  color: #fbf5e0;
+  cursor: pointer;
+  border: none;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.cta-btn .cta-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #4A362D, #6B4F3D, #4A362D);
+  background-size: 200% 100%;
+  transition: background-position 0.7s ease;
+}
+
+.cta-btn:hover .cta-bg {
+  background-position: 100% 0;
+}
+
+.cta-btn:hover {
+  box-shadow: 0 0 40px rgba(200, 159, 112, 0.35);
+  transform: translateY(-2px);
+}
+
+.cta-btn:active {
+  transform: scale(0.96) translateY(0);
+}
+
+.cta-btn .cta-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Email Input                                                        */
+/* ------------------------------------------------------------------ */
+.email-input {
+  background: rgba(251, 245, 224, 0.15);
+  border: 1px solid rgba(118, 97, 97, 0.2);
+  border-radius: 999px;
+  padding: 14px 24px;
+  color: #766161;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  outline: none;
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.email-input::placeholder {
+  color: rgba(118, 97, 97, 0.5);
+}
+
+.email-input:focus {
+  border-color: rgba(200, 159, 112, 0.5);
+  box-shadow: 0 0 20px rgba(200, 159, 112, 0.12);
+  background: rgba(251, 245, 224, 0.25);
+}
+
+/* ------------------------------------------------------------------ */
+/*  Reveal Animations                                                  */
+/* ------------------------------------------------------------------ */
+.reveal-up {
+  opacity: 0;
+  transform: translateY(60px);
+  transition: opacity 0.8s cubic-bezier(0.23, 1, 0.32, 1),
+              transform 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.reveal-up.revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* stagger children */
+.reveal-stagger > .reveal-up:nth-child(1) { transition-delay: 0s; }
+.reveal-stagger > .reveal-up:nth-child(2) { transition-delay: 0.1s; }
+.reveal-stagger > .reveal-up:nth-child(3) { transition-delay: 0.2s; }
+.reveal-stagger > .reveal-up:nth-child(4) { transition-delay: 0.3s; }
+.reveal-stagger > .reveal-up:nth-child(5) { transition-delay: 0.4s; }
+
+/* ------------------------------------------------------------------ */
+/*  Lenis smooth scrolling                                             */
+/* ------------------------------------------------------------------ */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-smooth iframe {
+  pointer-events: none;
 }

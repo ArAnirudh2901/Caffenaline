@@ -3,11 +3,17 @@
 import { useRef, useEffect, useState } from 'react'
 import { useStore } from '@/store/useStore'
 import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+if (typeof window !== 'undefined') {
+  gsap.registerPlugin(ScrollTrigger)
+}
 
 export default function BrandStorySection() {
   const sectionRef = useRef(null)
   const headlineRef = useRef(null)
   const bodyRef = useRef(null)
+  const slabRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
   const scrollVelocity = useStore((s) => s.scrollVelocity)
 
@@ -30,7 +36,33 @@ export default function BrandStorySection() {
     return () => observer.disconnect()
   }, [])
 
-  // GSAP reveal animations
+  // GSAP scroll-driven slide-in from right + reveal animations
+  useEffect(() => {
+    if (!slabRef.current || !sectionRef.current) return
+
+    const ctx = gsap.context(() => {
+      // Slide the glassmorphism slab in from the right
+      gsap.fromTo(
+        slabRef.current,
+        { x: 200, opacity: 0 },
+        {
+          x: 0,
+          opacity: 1,
+          ease: 'power3.out',
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top 80%',
+            end: 'top 30%',
+            scrub: 1,
+          },
+        }
+      )
+    }, sectionRef)
+
+    return () => ctx.revert()
+  }, [])
+
+  // GSAP reveal animations for content
   useEffect(() => {
     if (!isVisible) return
 
@@ -50,15 +82,14 @@ export default function BrandStorySection() {
     )
   }, [isVisible])
 
-  // Speedometer fill height based on scroll velocity
-  const speedFill = Math.min(100, Math.abs(scrollVelocity) * 0.08)
+  // Tone down the gauge response so normal scrolls produce a calmer fill range.
+  const speedFill = Math.min(100, Math.abs(scrollVelocity) * 0.125)
 
   return (
     <section
       ref={sectionRef}
       id="story-section"
-      className="section-container"
-      style={{ minHeight: '100vh' }}
+      className="relative z-20 w-full h-screen"
     >
       {/* Speedometer track — left edge */}
       <div
@@ -87,45 +118,55 @@ export default function BrandStorySection() {
         </span>
       </div>
 
-      {/* Content */}
-      <div className="w-full max-w-3xl mx-auto px-8 lg:px-16 py-32 lg:py-40">
-        <div className="glass-panel p-10 md:p-14 tilt-card">
-          <h2
-            ref={headlineRef}
-            className="kinetic-headline text-4xl md:text-6xl uppercase tracking-tighter leading-[0.9] mb-8 opacity-0"
+      {/* Content — Positioned strictly on the RIGHT side to counterbalance the cup on the left */}
+      <div className="w-full h-full flex items-center justify-end pr-8 lg:pr-16 pl-4 pointer-events-none">
+        <div ref={slabRef} className="w-full md:w-[55%] max-w-xl pointer-events-auto" style={{ opacity: 0 }}>
+          <div
+            className="glass-panel p-10 md:p-14 tilt-card w-full"
             style={{
-              color: '#4A362D',
-              fontVariationSettings: `'wght' ${Math.min(950, 800 + Math.abs(scrollVelocity) * 0.4)}`,
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              background: 'rgba(251, 245, 224, 0.4)',
             }}
           >
-            Defy the Ordinary.
-          </h2>
-
-          <div ref={bodyRef} className="opacity-0 space-y-6">
-            <p
-              className="text-base md:text-lg leading-relaxed"
-              style={{ color: '#766161' }}
+            <h2
+              ref={headlineRef}
+              className="kinetic-headline text-4xl md:text-6xl uppercase tracking-tighter leading-[0.9] mb-8 opacity-0"
+              style={{
+                color: '#4F3C32',
+                fontStyle: 'italic',
+                fontVariationSettings: `'wght' ${Math.min(950, 800 + Math.abs(scrollVelocity) * 0.4)}`,
+              }}
             >
-              We reject the standard morning routine. Caffenaline is about
-              conveying the perfect harmony of life-giving water and
-              energy-rich coffee.
-            </p>
-            <p
-              className="text-base md:text-lg leading-relaxed"
-              style={{ color: '#766161' }}
-            >
-              We roast and brew our beans for those chasing their next thrill,
-              delivering a visceral, high-energy experience with every single
-              drop.
-            </p>
+              Defy the Ordinary.
+            </h2>
 
-            {/* Decorative divider */}
-            <div className="flex items-center gap-4 pt-4">
-              <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(200, 159, 112, 0.4), transparent)' }} />
-              <span className="font-mono text-[10px] uppercase tracking-[0.4em]" style={{ color: '#C89F70' }}>
-                Est. 2026
-              </span>
-              <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(200, 159, 112, 0.4), transparent)' }} />
+            <div ref={bodyRef} className="opacity-0 space-y-6">
+              <p
+                className="text-base md:text-lg leading-relaxed"
+                style={{ color: '#4F3C32', opacity: 0.8 }}
+              >
+                We reject the standard morning routine. Caffenaline is about
+                conveying the perfect harmony of life-giving water and
+                energy-rich coffee.
+              </p>
+              <p
+                className="text-base md:text-lg leading-relaxed"
+                style={{ color: '#4F3C32', opacity: 0.8 }}
+              >
+                We roast and brew our beans for those chasing their next thrill,
+                delivering a visceral, high-energy experience with every single
+                drop.
+              </p>
+
+              {/* Decorative divider */}
+              <div className="flex items-center gap-4 pt-4">
+                <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(200, 159, 112, 0.4), transparent)' }} />
+                <span className="font-mono text-[10px] uppercase tracking-[0.4em]" style={{ color: '#C89F70' }}>
+                  Est. 2026
+                </span>
+                <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(200, 159, 112, 0.4), transparent)' }} />
+              </div>
             </div>
           </div>
         </div>

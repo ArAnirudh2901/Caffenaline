@@ -2,10 +2,10 @@
 
 @theme inline {
   --color-background: #fbf5e0;
-  --color-foreground: #766161;
+  --color-foreground: #4F3C32;
 
   --color-cream: #fbf5e0;
-  --color-bistre: #766161;
+  --color-bistre: #4F3C32;
   --color-coffee-dark: #4A362D;
   --color-coffee-mocha: #D4C5B9;
   --color-adrenaline: #C89F70;
@@ -22,7 +22,7 @@
 /* ------------------------------------------------------------------ */
 :root {
   --background: #fbf5e0;
-  --foreground: #766161;
+  --foreground: #4F3C32;
   --glass-bg: rgba(251, 245, 224, 0.35);
   --glass-border: rgba(118, 97, 97, 0.12);
   --glass-shadow: rgba(74, 54, 45, 0.08);

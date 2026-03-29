@@ -3,6 +3,7 @@
 import { useRef, useEffect, useCallback } from 'react'
 import { useStore } from '@/store/useStore'
 import gsap from 'gsap'
+import { smoothScrollTo } from '@/lib/smoothScrollTo'
 
 export default function HeroSection() {
   const titleRef = useRef(null)
@@ -137,17 +138,14 @@ export default function HeroSection() {
   }, [])
 
   const handleCTA = useCallback(() => {
-    const menuSection = document.getElementById('menu-section')
-    if (menuSection) {
-      menuSection.scrollIntoView({ behavior: 'smooth' })
-    }
+    smoothScrollTo('#menu-section')
   }, [])
 
   return (
     <section
       ref={sectionRef}
       id="hero-section"
-      className="section-container flex-col justify-center px-8 lg:px-24 pt-24 pb-12"
+      className="section-container flex-col justify-center items-center text-center px-8 lg:px-24 pt-24 pb-12"
       style={{ minHeight: '100vh' }}
     >
       {/* Z-axis parallax title — moves faster than bg */}
@@ -157,7 +155,8 @@ export default function HeroSection() {
           className="kinetic-headline text-5xl md:text-[7.5vw] uppercase tracking-tighter leading-[0.85] will-change-transform"
           style={{
             perspective: '800px',
-            color: '#4A362D',
+            color: '#4F3C32',
+            fontStyle: 'italic',
           }}
         >
           Adrenaline in a Cup.

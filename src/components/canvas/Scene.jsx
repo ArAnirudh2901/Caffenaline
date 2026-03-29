@@ -9,7 +9,7 @@ import ScrollCameraController from './ScrollCameraController'
 
 export default function Scene() {
   return (
-    <div className="fixed inset-0 w-full h-full pointer-events-auto z-10" style={{ backgroundColor: '#fbf5e0' }}>
+    <div className="fixed inset-0 w-full h-full" style={{ zIndex: -1, backgroundColor: '#fbf5e0' }}>
       <Canvas
         camera={{ position: [0, 2.5, 6], fov: 40 }}
         dpr={[1, 2]}
@@ -19,12 +19,12 @@ export default function Scene() {
         <color attach="background" args={['#fbf5e0']} />
 
         {/* Soft ambient fill */}
-        <ambientLight intensity={1.5} color="#FFF5E6" />
+        <ambientLight intensity={1.1} color="#FFF5E6" />
 
         {/* Key light */}
         <directionalLight
-          position={[4, 6, 2]}
-          intensity={2.5}
+          position={[8, 10, -5]}
+          intensity={2.0}
           color="#FFF0DD"
           castShadow
           shadow-mapSize={[2048, 2048]}
@@ -34,8 +34,8 @@ export default function Scene() {
         {/* HDR Environment */}
         <Suspense fallback={null}>
           <Environment
-            preset="city"
-            environmentIntensity={0.6}
+            preset="studio"
+            environmentIntensity={0.3}
             environmentRotation={[0, Math.PI / 4, 0]}
           />
         </Suspense>

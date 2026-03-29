@@ -1,7 +1,9 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import Link from 'next/link'
+import { smoothScrollTo } from '@/lib/smoothScrollTo'
 
 const navLinks = [
   { label: 'Story', href: '#story-section' },
@@ -19,9 +21,20 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
+  const handleNavClick = useCallback((event, href, closeMenu = false) => {
+    event.preventDefault()
+
+    if (closeMenu) {
+      setMenuOpen(false)
+    }
+
+    smoothScrollTo(href)
+  }, [])
+
   return (
     <>
       <motion.nav
+        data-navbar
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1, delay: 2.2, ease: [0.22, 1, 0.36, 1] }}
@@ -38,7 +51,7 @@ export default function Navbar() {
         }}
       >
         {/* Brand */}
-        <a href="/" className="pointer-events-auto flex items-center gap-2 group">
+        <Link href="/" className="pointer-events-auto flex items-center gap-2 group">
           <div
             className="w-8 h-8 rounded-full flex items-center justify-center text-white font-black text-xs tracking-tighter group-hover:scale-110 transition-transform duration-300"
             style={{ background: 'linear-gradient(135deg, #8B6914, #C89F70)' }}
@@ -48,7 +61,7 @@ export default function Navbar() {
           <span className="font-black text-lg tracking-tight uppercase" style={{ color: '#4A362D' }}>
             Caffenaline
           </span>
-        </a>
+        </Link>
 
         {/* Desktop Links */}
         <div className="hidden md:flex items-center gap-1 pointer-events-auto">
@@ -58,6 +71,7 @@ export default function Navbar() {
               href={link.href}
               className="relative px-4 py-2 text-sm font-medium uppercase tracking-wider transition-colors duration-300 group"
               style={{ color: '#6B4F3D' }}
+              onClick={(event) => handleNavClick(event, link.href)}
               onMouseEnter={(e) => (e.target.style.color = '#4A362D')}
               onMouseLeave={(e) => (e.target.style.color = '#6B4F3D')}
             >
@@ -131,7 +145,7 @@ export default function Navbar() {
                 <motion.a
                   key={link.label}
                   href={link.href}
-                  onClick={() => setMenuOpen(false)}
+                  onClick={(event) => handleNavClick(event, link.href, true)}
                   initial={{ opacity: 0, y: 30 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}

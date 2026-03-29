@@ -63,6 +63,7 @@ const DRINKS = [
 ]
 
 export default function MenuSection() {
+  const containerRef = useRef(null)
   const sectionRef = useRef(null)
   const panelsRef = useRef([])
   const counterRef = useRef(null)
@@ -83,7 +84,7 @@ export default function MenuSection() {
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: '+=400%',
+          end: '+=250%',
           pin: true,
           scrub: 1,
           anticipatePin: 1,
@@ -120,14 +121,14 @@ export default function MenuSection() {
           // Breathing room between transitions
           .to({}, { duration: 0.3 })
       }
-    }, sectionRef)
+    }, containerRef)
 
     return () => ctx.revert()
   }, [])
 
   return (
-    <section ref={sectionRef} id="menu-section" className="relative z-20">
-      <div className="h-screen flex items-center pointer-events-none">
+    <section ref={containerRef} id="menu-section" className="relative z-20">
+      <div ref={sectionRef} className="h-screen flex items-center pointer-events-none w-full">
         {/* LEFT: Glassmorphism Slab */}
         <div className="w-full md:w-[55%] h-full flex items-center pl-6 lg:pl-16 pr-4 relative z-30">
           <div

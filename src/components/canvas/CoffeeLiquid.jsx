@@ -107,25 +107,34 @@ const heightmapFragmentShader = `
 //  Morph keyframes — synchronized with menu scroll (coffeeProgress 0→4)
 // ---------------------------------------------------------------------------
 const MORPH_COLORS = [
-  new THREE.Color('#2A140A'), // 0: Espresso — extremely dark, but visibly dark brown rather than pure black
+  new THREE.Color('#2A140A'), // 0: Espresso — extremely dark brown
   new THREE.Color('#38180A'), // 1: Mocha — deep chocolate brown
-  new THREE.Color('#C49A6C'), // 2: Latte — ultra-realistic creamy, milky crema tone
+  new THREE.Color('#D4955A'), // 2: Latte — ultra-realistic rich golden caramel crema
   new THREE.Color('#8C4824'), // 3: Cappuccino — intense classic brown
   new THREE.Color('#3E2723'), // 4: Hot Chocolate — dark matte cocoa
 ]
 
 const MORPH_KEYFRAMES = [
-  // Espresso: Extremely dark, pure liquid reflection. Slight transmission for depth
-  { roughness: 0.05, transmission: 0.05, foam: 0.15, clearcoat: 1.0, clearcoatRoughness: 0.0, thickness: 1.5 },
+  // Espresso: Extremely dark, pure liquid reflection
+  { roughness: 0.01, transmission: 0.05, foam: 1.5, clearcoat: 1.2, clearcoatRoughness: 0.0, thickness: 1.5 },
   // Mocha: Rich dark chocolate brown, basically opaque
   { roughness: 0.08, transmission: 0.0, foam: 0.4, clearcoat: 1.0, clearcoatRoughness: 0.0, thickness: 2.0 },
-  // Latte: Ultra-realistic smooth milk/crema mix. Tiny bit of transmission for subsurface depth, sharp wet clearcoat
-  { roughness: 0.08, transmission: 0.02, foam: 0.3, clearcoat: 1.0, clearcoatRoughness: 0.02, thickness: 2.0 },
-  // Cappuccino: Heavy microfoam, completely opaque, more diffuse
+  // Latte: Ultra-realistic smooth milk/crema mix
+  { roughness: 0.05, transmission: 0.02, foam: 0.6, clearcoat: 1.0, clearcoatRoughness: 0.02, thickness: 2.0 },
+  // Cappuccino: Heavy microfoam, completely opaque
   { roughness: 0.15, transmission: 0.0, foam: 1.0, clearcoat: 0.8, clearcoatRoughness: 0.08, thickness: 2.5 },
   // Hot Chocolate: Dense, fully opaque cocoa reflection
   { roughness: 0.20, transmission: 0.0, foam: 0.35, clearcoat: 0.7, clearcoatRoughness: 0.1, thickness: 3.0 },
 ]
+
+const SHIMMER_FLOOR = {
+  foam: 1.2,
+  roughness: 0.06,
+  clearcoat: 1.0,
+  clearcoatRoughness: 0.025,
+  reflectivity: 0.18,
+  envMapIntensity: 0.35,
+}
 
 function lerpVal(a, b, t) {
   return a + (b - a) * t
@@ -216,10 +225,17 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     const from = MORPH_KEYFRAMES[idx]
     const to = MORPH_KEYFRAMES[idx + 1]
 
+    // Update uProgress uniform — drives vertex displacement intensity
+    if (customMaterialRef.current?.uniforms?.uProgress) {
+      customMaterialRef.current.uniforms.uProgress.value = clamped / 4.0
+    }
+
     // Update foam displacement uniform
     if (customMaterialRef.current?.uniforms?.uFoamIntensity) {
-      customMaterialRef.current.uniforms.uFoamIntensity.value =
+      customMaterialRef.current.uniforms.uFoamIntensity.value = Math.max(
+        SHIMMER_FLOOR.foam,
         lerpVal(from.foam, to.foam, frac)
+      )
     }
 
     // Update material visual properties
@@ -229,11 +245,22 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
       _colorB.copy(MORPH_COLORS[idx + 1])
       mat.color.lerpColors(_colorA, _colorB, frac)
       mat.attenuationColor.lerpColors(_colorA, _colorB, frac)
-      mat.roughness = lerpVal(from.roughness, to.roughness, frac)
+      mat.roughness = Math.min(
+        SHIMMER_FLOOR.roughness,
+        lerpVal(from.roughness, to.roughness, frac)
+      )
       mat.transmission = lerpVal(from.transmission, to.transmission, frac)
-      mat.clearcoat = lerpVal(from.clearcoat, to.clearcoat, frac)
-      mat.clearcoatRoughness = lerpVal(from.clearcoatRoughness, to.clearcoatRoughness, frac)
+      mat.clearcoat = Math.max(
+        SHIMMER_FLOOR.clearcoat,
+        lerpVal(from.clearcoat, to.clearcoat, frac)
+      )
+      mat.clearcoatRoughness = Math.min(
+        SHIMMER_FLOOR.clearcoatRoughness,
+        lerpVal(from.clearcoatRoughness, to.clearcoatRoughness, frac)
+      )
       mat.thickness = lerpVal(from.thickness, to.thickness, frac)
+      mat.reflectivity = SHIMMER_FLOOR.reflectivity
+      mat.envMapIntensity = SHIMMER_FLOOR.envMapIntensity
     }
   })
 
@@ -241,6 +268,7 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
   const onBeforeCompile = (shader) => {
     shader.uniforms.uHeightMap = { value: null }
     shader.uniforms.uFoamIntensity = { value: 1.0 }
+    shader.uniforms.uProgress = { value: 0.0 }
     customMaterialRef.current = shader
 
     const D = (radius * 2.0).toFixed(4)
@@ -248,6 +276,7 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     shader.vertexShader = `
       uniform sampler2D uHeightMap;
       uniform float uFoamIntensity;
+      uniform float uProgress;
 
       // Worley noise (Manhattan distance) for chaotic microfoam unevenness
       vec2 random2(vec2 p) {
@@ -274,16 +303,18 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
           vec2 uv = vec2(localPos.x / ${D} + 0.5, localPos.y / ${D} + 0.5);
           float baseH = texture2D(uHeightMap, uv).r;
 
-          float noise = worleyManhattan(localPos * 40.0);
-          float detail = (1.0 - noise) * abs(baseH) * 0.3;
+          // Scale Worley detail by uProgress — more turbulent as drinks change
+          float noiseScale = 40.0 + uProgress * 20.0;
+          float noise = worleyManhattan(localPos * noiseScale);
+          float detail = (1.0 - noise) * abs(baseH) * (0.3 + uProgress * 0.2);
           return baseH + detail * sign(baseH);
       }
 
       ${shader.vertexShader}
     `
-    .replace(
-      '#include <beginnormal_vertex>',
-      `
+      .replace(
+        '#include <beginnormal_vertex>',
+        `
       vec2 heightMapUV = vec2(position.x / ${D} + 0.5, position.y / ${D} + 0.5);
 
       // Central-difference normal recalculation from displacement
@@ -295,15 +326,15 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
 
       vec3 objectNormal = normalize(vec3(-(hR - hL), -(hU - hD), physOffset * 2.0));
       `
-    )
-    .replace(
-      '#include <begin_vertex>',
-      `
+      )
+      .replace(
+        '#include <begin_vertex>',
+        `
       vec3 transformed = vec3(position);
       float h = getCombinedHeight(position.xy) * uFoamIntensity;
       transformed.z += h;
       `
-    )
+      )
   }
 
   return (
@@ -317,17 +348,17 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     >
       <meshPhysicalMaterial
         color={liquidColor}
-        roughness={0}
+        roughness={0.15}
         metalness={0}
-        clearcoat={1.0}
-        clearcoatRoughness={0}
-        transmission={0.6}
-        thickness={2.5}
+        clearcoat={0.4}
+        clearcoatRoughness={0.1}
+        transmission={0}
+        thickness={0}
         attenuationColor={liquidColor}
-        attenuationDistance={0.8}
+        attenuationDistance={0.5}
         ior={1.4}
-        reflectivity={0.2}
-        envMapIntensity={0.5}
+        reflectivity={0.08}
+        envMapIntensity={0.15}
         side={THREE.DoubleSide}
         onBeforeCompile={onBeforeCompile}
       />

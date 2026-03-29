@@ -22,6 +22,8 @@ export const metadata = {
   description: "Fuel for the fearless. A visceral, high-energy coffee experience with artisanal roasts and extreme flavor profiles.",
 };
 
+import SmoothScroll from "@/components/dom/SmoothScroll";
+
 export default function RootLayout({ children }) {
   return (
     <html
@@ -29,7 +31,9 @@ export default function RootLayout({ children }) {
       className={`${outfit.variable} ${firaCode.variable} ${inter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
-        {children}
+        <SmoothScroll>
+          {children}
+        </SmoothScroll>
       </body>
     </html>
   );

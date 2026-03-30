@@ -70,6 +70,23 @@ export default function MenuSection() {
   const progressBarRef = useRef(null)
 
   useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          useStore.getState().setCurrentSection(2)
+        }
+      },
+      { threshold: 0.45 }
+    )
+
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
 
     const panels = panelsRef.current.filter(Boolean)
@@ -128,20 +145,23 @@ export default function MenuSection() {
 
   return (
     <section ref={containerRef} id="menu-section" className="relative z-20">
-      <div ref={sectionRef} className="h-screen flex items-center pointer-events-none w-full">
-        {/* LEFT: Glassmorphism Slab */}
-        <div className="w-full md:w-[55%] h-full flex items-center pl-6 lg:pl-16 pr-4 relative z-30">
+      <div
+        ref={sectionRef}
+        className="flex items-center pointer-events-none w-full relative"
+        style={{ height: '100vh', height: '100dvh' }}
+      >
+        {/* LEFT: Glassmorphism Slab — on mobile becomes bottom-aligned card */}
+        <div className="menu-slab-wrapper w-full md:w-[55%] h-full flex items-center pl-6 lg:pl-16 pr-4 relative z-30">
           <div
-            className="relative pointer-events-auto"
+            className="glass-slab glass-slab-clear relative pointer-events-auto"
             style={{
               width: 'min(90vw, 640px)',
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              background: 'rgba(251, 245, 224, 0.4)',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+              background: 'transparent',
               border: '1px solid rgba(118, 97, 97, 0.1)',
               borderRadius: '24px',
-              boxShadow:
-                '0 8px 40px rgba(74, 54, 45, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.2)',
+              boxShadow: 'none',
               padding: 'clamp(2rem, 4vw, 3.5rem)',
               minHeight: '420px',
               position: 'relative',

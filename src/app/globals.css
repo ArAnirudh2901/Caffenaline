@@ -87,6 +87,19 @@ body {
   border-radius: 20px;
 }
 
+.glass-panel-transparent,
+.glass-slab-transparent {
+  background: transparent !important;
+}
+
+.glass-panel-clear,
+.glass-slab-clear {
+  background: transparent !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: none !important;
+}
+
 .glass-panel-dark {
   background: rgba(74, 54, 45, 0.25);
   backdrop-filter: blur(16px);
@@ -166,6 +179,7 @@ body {
   position: relative;
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   z-index: 20;
@@ -174,6 +188,79 @@ body {
 
 .section-container > * {
   pointer-events: auto;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Canvas touch passthrough — let vertical swipes scroll the DOM      */
+/* ------------------------------------------------------------------ */
+.canvas-container {
+  touch-action: pan-y;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Mobile-first responsive breakpoints                                */
+/* ------------------------------------------------------------------ */
+
+/* Tablet (< 1024px): tighten spacing, reduce glassmorphism panel widths */
+@media (max-width: 1023px) {
+  .section-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Mobile (< 768px): stack layout, cup visible through transparent slab */
+@media (max-width: 767px) {
+  .menu-slab-wrapper {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 92%;
+    max-width: none;
+    padding-left: 0;
+    padding-right: 0;
+    height: auto;
+    max-height: 58%;
+    align-items: flex-end;
+    padding-bottom: 1.5rem;
+  }
+
+  .menu-slab-wrapper .glass-slab {
+    border-radius: 20px 20px 16px 16px;
+    width: 100%;
+    min-height: auto !important;
+    padding: 1.5rem !important;
+    max-height: 52dvh;
+    overflow-y: auto;
+    /* Highly transparent so cup shows through */
+    background: rgba(251, 245, 224, 0.15) !important;
+    backdrop-filter: blur(8px) !important;
+    -webkit-backdrop-filter: blur(8px) !important;
+    border: 1px solid rgba(118, 97, 97, 0.08) !important;
+    box-shadow: 0 4px 20px rgba(74, 54, 45, 0.04) !important;
+  }
+
+  /* Glass panels used in other sections (Brand Story, etc) */
+  .glass-panel {
+    background: rgba(251, 245, 224, 0.18) !important;
+    backdrop-filter: blur(10px) !important;
+    -webkit-backdrop-filter: blur(10px) !important;
+  }
+
+  .menu-slab-wrapper .glass-slab-transparent,
+  .glass-panel-transparent,
+  .menu-slab-wrapper .glass-slab-clear,
+  .glass-panel-clear {
+    background: transparent !important;
+  }
+
+  .menu-slab-wrapper .glass-slab-clear,
+  .glass-panel-clear {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+  }
 }
 
 /* ------------------------------------------------------------------ */

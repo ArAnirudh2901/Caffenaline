@@ -25,8 +25,29 @@ export default function HeroSection() {
   const smoothVelocity = useRef(0)
   const rafId = useRef(null)
 
-  // Raw mouse tracking — just writes to a ref, zero React involvement
   useEffect(() => {
+    const section = sectionRef.current
+    if (!section) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          useStore.getState().setCurrentSection(0)
+        }
+      },
+      { threshold: 0.45 }
+    )
+
+    observer.observe(section)
+    return () => observer.disconnect()
+  }, [])
+
+  // Raw mouse tracking — just writes to a ref, zero React involvement
+  // Disabled on touch-only devices to save CPU
+  useEffect(() => {
+    const hasHover = window.matchMedia('(hover: hover)').matches
+    if (!hasHover) return
+
     const handleMouse = (e) => {
       mouse.current.x = (e.clientX / window.innerWidth - 0.5) * 2
       mouse.current.y = (e.clientY / window.innerHeight - 0.5) * 2
@@ -150,13 +171,13 @@ export default function HeroSection() {
       ref={sectionRef}
       id="hero-section"
       className="section-container flex-col justify-center items-center text-center px-8 lg:px-24 pt-24 pb-12"
-      style={{ minHeight: '100vh' }}
+      style={{ minHeight: '100vh', minHeight: '100dvh' }}
     >
       {/* Z-axis parallax title — moves faster than bg */}
       <div ref={titleWrapRef} style={{ willChange: 'transform' }}>
         <h1
           ref={titleRef}
-          className="kinetic-headline text-5xl md:text-[7.5vw] uppercase tracking-tighter leading-[0.85] will-change-transform"
+          className="kinetic-headline text-[clamp(1.55rem,8vw,6.2rem)] uppercase tracking-tighter leading-[0.85] whitespace-nowrap will-change-transform"
           style={{
             perspective: '800px',
             color: '#4F3C32',
@@ -164,6 +185,7 @@ export default function HeroSection() {
             overflow: 'visible',
             marginRight: '-0.2em',
             paddingRight: '0.25em',
+            whiteSpace: 'nowrap',
           }}
         >
           Adrenaline in a Cup

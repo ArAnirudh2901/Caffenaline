@@ -11,9 +11,14 @@ import * as THREE from 'three'
 //  The camera stays mostly fixed, providing a stable overhead angle that
 //  frames the cup across all three stages. Only the Footer section pushes
 //  the camera up so the cup exits the bottom of the viewport.
+//
+//  Portrait fix: when aspect < 1, push camera Z back by (BASE_Z / aspect)
+//  to prevent the cup from being cropped on narrow screens.
 // ---------------------------------------------------------------------------
 
-const HERO_POS = new THREE.Vector3(0, 2.5, 6.0)
+const BASE_Z = 6.0
+
+const HERO_POS = new THREE.Vector3(0, 2.5, BASE_Z)
 const HERO_LOOK = new THREE.Vector3(0, 0.5, 0)
 
 const FOOTER_POS = new THREE.Vector3(0, 10.0, 5.0)
@@ -71,7 +76,17 @@ export default function ScrollCameraController() {
   }, [])
 
   useFrame(() => {
-    camera.position.lerp(targetPos.current, 0.08)
+    // Start with the base target interpolated by GSAP
+    _pos.copy(targetPos.current)
+
+    // Portrait aspect-ratio fix: push camera Z back to prevent cup cropping
+    // Apply this dynamically to _pos so it cleanly reverts if resized back to landscape
+    const aspect = camera.aspect
+    if (aspect < 1) {
+      _pos.z = Math.max(_pos.z, BASE_Z / aspect)
+    }
+
+    camera.position.lerp(_pos, 0.08)
     _currentLook.lerp(targetLook.current, 0.08)
     camera.lookAt(_currentLook)
   })

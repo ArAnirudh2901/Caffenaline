@@ -30,7 +30,7 @@ function TiltGlassCard({ children, className = '' }) {
   return (
     <div
       ref={cardRef}
-      className={`glass-panel ${className}`}
+      className={`glass-panel glass-panel-transparent ${className}`}
       style={{
         transition: 'transform 0.4s cubic-bezier(0.23, 1, 0.32, 1)',
         willChange: 'transform',
@@ -100,7 +100,7 @@ export default function FooterSection() {
       ref={sectionRef}
       id="footer-section"
       className="section-container flex-col justify-center"
-      style={{ minHeight: '100vh', paddingTop: '6rem', paddingBottom: '4rem' }}
+      style={{ minHeight: '100vh', minHeight: '100dvh', paddingTop: '6rem', paddingBottom: '4rem' }}
     >
       <div className="w-full max-w-6xl mx-auto px-6 lg:px-16">
         {/* Headline */}
@@ -209,7 +209,7 @@ export default function FooterSection() {
           >
             {/* FRONT (FORM) */}
             <div
-              className="glass-panel p-8 md:p-12 text-center"
+              className="glass-panel glass-panel-transparent p-8 md:p-12 text-center"
               style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
             >
               <h3
@@ -244,7 +244,7 @@ export default function FooterSection() {
 
             {/* BACK (SUCCESS STATE) */}
             <div
-              className="glass-panel p-8 md:p-12 text-center absolute inset-0 flex flex-col items-center justify-center"
+              className="glass-panel glass-panel-transparent p-8 md:p-12 text-center absolute inset-0 flex flex-col items-center justify-center"
               style={{
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
@@ -260,7 +260,7 @@ export default function FooterSection() {
                 className="text-2xl md:text-3xl font-black uppercase tracking-tight mb-3"
                 style={{ color: '#4A362D' }}
               >
-                You're In.
+                You&apos;re In.
               </h3>
               <p className="text-sm mb-6" style={{ color: '#5C4A42' }}>
                 Check your inbox for the welcome drop.

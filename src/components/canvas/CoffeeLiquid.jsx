@@ -136,6 +136,15 @@ const SHIMMER_FLOOR = {
   envMapIntensity: 1.2,
 }
 
+const MENU_SHIMMER = {
+  foam: 0.18,
+  roughness: 0.012,
+  clearcoat: 0.16,
+  clearcoatRoughness: 0.008,
+  reflectivity: 0.1,
+  envMapIntensity: 0.24,
+}
+
 function lerpVal(a, b, t) {
   return a + (b - a) * t
 }
@@ -205,6 +214,7 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     prevSpoon.current.copy(currentUV)
 
     fbo.heightmapVariable.material.uniforms.uSpoonUV.value.copy(currentUV)
+    // eslint-disable-next-line react-hooks/immutability
     fbo.heightmapVariable.material.uniforms.uSpoonMoving.value = isMoving
 
     fbo.gpuCompute.compute()
@@ -218,9 +228,15 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     //  Liquid morph — interpolate material props based on coffeeProgress
     // ------------------------------------------------------------------
     const progress = useStore.getState().coffeeProgress
+    const currentSection = useStore.getState().currentSection
+    const scrollVelocity = useStore.getState().scrollVelocity
     const clamped = Math.max(0, Math.min(4, progress))
     const idx = Math.min(Math.floor(clamped), 3)
     const frac = clamped - idx
+    const isMenuSection = currentSection === 2
+    const shimmerPulse = isMenuSection ? 0.5 + 0.5 * Math.sin(t * 3.6) : 0
+    const velocityBoost = isMenuSection ? Math.min(0.06, scrollVelocity / 11000) : 0
+    const shimmerBoost = isMenuSection ? 0.08 + shimmerPulse * 0.05 + velocityBoost : 0
 
     const from = MORPH_KEYFRAMES[idx]
     const to = MORPH_KEYFRAMES[idx + 1]
@@ -234,7 +250,7 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     if (customMaterialRef.current?.uniforms?.uFoamIntensity) {
       customMaterialRef.current.uniforms.uFoamIntensity.value = Math.max(
         SHIMMER_FLOOR.foam,
-        lerpVal(from.foam, to.foam, frac)
+        lerpVal(from.foam, to.foam, frac) + shimmerBoost * MENU_SHIMMER.foam
       )
     }
 
@@ -245,22 +261,32 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
       _colorB.copy(MORPH_COLORS[idx + 1])
       mat.color.lerpColors(_colorA, _colorB, frac)
       mat.attenuationColor.lerpColors(_colorA, _colorB, frac)
-      mat.roughness = Math.min(
+      const baseRoughness = Math.min(
         SHIMMER_FLOOR.roughness,
         lerpVal(from.roughness, to.roughness, frac)
       )
-      mat.transmission = lerpVal(from.transmission, to.transmission, frac)
-      mat.clearcoat = Math.max(
+      const baseClearcoat = Math.max(
         SHIMMER_FLOOR.clearcoat,
         lerpVal(from.clearcoat, to.clearcoat, frac)
       )
-      mat.clearcoatRoughness = Math.min(
+      const baseClearcoatRoughness = Math.min(
         SHIMMER_FLOOR.clearcoatRoughness,
         lerpVal(from.clearcoatRoughness, to.clearcoatRoughness, frac)
       )
+      mat.roughness = Math.max(
+        0.01,
+        baseRoughness - shimmerBoost * MENU_SHIMMER.roughness
+      )
+      mat.transmission = lerpVal(from.transmission, to.transmission, frac)
+      mat.clearcoat = baseClearcoat + shimmerBoost * MENU_SHIMMER.clearcoat
+      mat.clearcoatRoughness = Math.max(
+        0.0,
+        baseClearcoatRoughness - shimmerBoost * MENU_SHIMMER.clearcoatRoughness
+      )
       mat.thickness = lerpVal(from.thickness, to.thickness, frac)
-      mat.reflectivity = SHIMMER_FLOOR.reflectivity
-      mat.envMapIntensity = SHIMMER_FLOOR.envMapIntensity
+      mat.reflectivity = SHIMMER_FLOOR.reflectivity + shimmerBoost * MENU_SHIMMER.reflectivity
+      mat.envMapIntensity =
+        SHIMMER_FLOOR.envMapIntensity + shimmerBoost * MENU_SHIMMER.envMapIntensity
     }
   })
 

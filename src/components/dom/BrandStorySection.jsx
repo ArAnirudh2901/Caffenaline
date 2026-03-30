@@ -89,7 +89,8 @@ export default function BrandStorySection() {
     <section
       ref={sectionRef}
       id="story-section"
-      className="relative z-20 w-full h-screen"
+      className="relative z-20 w-full"
+      style={{ height: '100vh', height: '100dvh' }}
     >
       {/* Speedometer track — left edge */}
       <div
@@ -122,11 +123,12 @@ export default function BrandStorySection() {
       <div className="w-full h-full flex items-center justify-end pr-8 lg:pr-16 pl-4 pointer-events-none">
         <div ref={slabRef} className="pointer-events-auto" style={{ opacity: 0, width: 'min(90vw, 500px)' }}>
           <div
-            className="glass-panel p-10 md:p-14 tilt-card w-full"
+            className="glass-panel glass-panel-clear p-10 md:p-14 tilt-card w-full"
             style={{
-              backdropFilter: 'blur(16px)',
-              WebkitBackdropFilter: 'blur(16px)',
-              background: 'rgba(251, 245, 224, 0.4)',
+              backdropFilter: 'none',
+              WebkitBackdropFilter: 'none',
+              background: 'transparent',
+              boxShadow: 'none',
             }}
           >
             <h2

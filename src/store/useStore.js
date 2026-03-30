@@ -33,6 +33,10 @@ export const useStore = create((set) => ({
   shadersCompiled: false,
   setShadersCompiled: (compiled) => set({ shadersCompiled: compiled }),
 
+  // GPU Performance Tier — 'high' or 'low' (set by PerformanceMonitor)
+  performanceTier: 'high',
+  setPerformanceTier: (tier) => set({ performanceTier: tier }),
+
   // Order Modal State
   orderModalOpen: false,
   setOrderModalOpen: (open) => set({ orderModalOpen: open }),

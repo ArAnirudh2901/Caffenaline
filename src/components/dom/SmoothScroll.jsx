@@ -29,7 +29,7 @@ export default function SmoothScroll({ children }) {
       wheelMultiplier: 1.0, // Standard 1:1 input tracking speed
       lerp: 0.05, // Ultra smooth easing interpolation
       smoothTouch: true,
-      touchMultiplier: 1.5,
+      touchMultiplier: 2,
     })
 
     lenisRef.current = lenis

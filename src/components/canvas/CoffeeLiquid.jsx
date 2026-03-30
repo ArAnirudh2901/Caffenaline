@@ -160,6 +160,7 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
   const meshRef = useRef()
   const customMaterialRef = useRef()
   const prevSpoon = useRef(new THREE.Vector2())
+  const spoonUvRef = useRef(new THREE.Vector2())
   const timeRef = useRef(0)
   const { gl } = useThree()
 
@@ -195,7 +196,7 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
   }, [gl])
 
   // ---- Per-frame: map spoon position → UV, step simulation, morph liquid ----
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!stirring || !fbo) return
     timeRef.current += delta
     const t = timeRef.current
@@ -209,7 +210,7 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     const spoonU = (localSpoonX / (radius * 2.0)) + 0.5
     const spoonV = (localSpoonY / (radius * 2.0)) + 0.5
 
-    const currentUV = new THREE.Vector2(spoonU, spoonV)
+    const currentUV = spoonUvRef.current.set(spoonU, spoonV)
     const isMoving = currentUV.distanceTo(prevSpoon.current) > 0.0001 ? 1.0 : 0.0
     prevSpoon.current.copy(currentUV)
 
@@ -227,9 +228,10 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     // ------------------------------------------------------------------
     //  Liquid morph — interpolate material props based on coffeeProgress
     // ------------------------------------------------------------------
-    const progress = useStore.getState().coffeeProgress
-    const currentSection = useStore.getState().currentSection
-    const scrollVelocity = useStore.getState().scrollVelocity
+    const store = useStore.getState()
+    const progress = store.coffeeProgress
+    const currentSection = store.currentSection
+    const scrollVelocity = store.scrollVelocity
     const clamped = Math.max(0, Math.min(4, progress))
     const idx = Math.min(Math.floor(clamped), 3)
     const frac = clamped - idx
@@ -341,8 +343,6 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
       .replace(
         '#include <beginnormal_vertex>',
         `
-      vec2 heightMapUV = vec2(position.x / ${D} + 0.5, position.y / ${D} + 0.5);
-
       // Central-difference normal recalculation from displacement
       float physOffset = ${D} / 256.0;
       float hL = getCombinedHeight(position.xy + vec2(-physOffset, 0.0)) * uFoamIntensity;

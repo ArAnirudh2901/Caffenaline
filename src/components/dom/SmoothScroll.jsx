@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import Lenis from '@studio-freight/lenis'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
@@ -17,8 +17,6 @@ if (typeof window !== 'undefined') {
 }
 
 export default function SmoothScroll({ children }) {
-  const lenisRef = useRef(null)
-
   useEffect(() => {
     const lenis = new Lenis({
       duration: 1.2, // Standard responsive timing
@@ -32,7 +30,6 @@ export default function SmoothScroll({ children }) {
       touchMultiplier: 2,
     })
 
-    lenisRef.current = lenis
     window.__lenis = lenis
 
     // Track scroll position for velocity computation (fallback for keyboard)
@@ -41,13 +38,10 @@ export default function SmoothScroll({ children }) {
     let smoothedComputedVelocity = 0 // EMA smoother
 
     // Synchronize Lenis with GSAP ScrollTrigger
-    lenis.on('scroll', ({ scroll, progress, velocity }) => {
+    lenis.on('scroll', ({ scroll, velocity }) => {
       // Update ScrollTrigger on every Lenis tick so scrub-based
       // timelines stay perfectly synced with the smooth scroll position
       ScrollTrigger.update()
-
-      const store = useStore.getState()
-      store.setScrollProgress(progress)
 
       // Compute velocity from position delta as fallback for keyboard scrolling
       const now = performance.now()
@@ -74,7 +68,7 @@ export default function SmoothScroll({ children }) {
       }
 
       const clampedVelocity = Math.min(800, rawVelocity)
-      store.setScrollVelocity(clampedVelocity)
+      useStore.getState().setScrollVelocity(clampedVelocity)
 
       // Update CSS custom property for kinetic text
       document.documentElement.style.setProperty(

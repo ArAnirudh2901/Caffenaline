@@ -1,66 +1,9 @@
 'use client'
 
 import { useRef, useEffect } from 'react'
-import { useStore } from '@/store/useStore'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
-
-const DRINKS = [
-  {
-    name: 'THE BASE DROP',
-    type: 'Espresso',
-    tagline: 'Pure energy. No filter.',
-    description:
-      'A highly concentrated, strong shot of pure energy featuring a rich, heavy body. The ultimate quick hit.',
-    notes: ['Dark Roast', 'Crema', 'Intense Body'],
-    color: '#3B2419',
-    accent: '#5C3D2E',
-  },
-  {
-    name: 'THE SWEET THRILL',
-    type: 'Mocha',
-    tagline: 'Where chocolate meets chaos.',
-    description:
-      'An intoxicatingly rich blend of sweet chocolate sauce, espresso, and velvety textured milk.',
-    notes: ['Dark Chocolate', 'Double Shot', 'Steamed Milk'],
-    color: '#4A2C2A',
-    accent: '#8B5E3C',
-  },
-  {
-    name: 'THE SMOOTH GLIDE',
-    type: 'Latte',
-    tagline: 'Silky. Seamless. Unstoppable.',
-    description:
-      'A seamless blend of one-third bold espresso and two-thirds hot steamed milk, finished with a smooth microfoam layer.',
-    notes: ['Microfoam', 'Steamed Milk', 'Single Shot'],
-    color: '#A0826D',
-    accent: '#C4A882',
-  },
-  {
-    name: 'THE CLOUD NINE',
-    type: 'Cappuccino',
-    tagline: 'Ascend through the foam.',
-    description:
-      'A dessert-like experience featuring our signature espresso and a thicker, highly concentrated dose of microfoam.',
-    notes: ['Dense Foam', 'Equal Parts', 'Velvety Crema'],
-    color: '#6F4E37',
-    accent: '#D4A373',
-  },
-  {
-    name: 'THE COMFORTER',
-    type: 'Hot Chocolate',
-    tagline: 'Warmth without limits.',
-    description:
-      'Pure, dense, and comforting cocoa. All the rich flavor and warmth for a different kind of rush.',
-    notes: ['Belgian Cocoa', 'Whole Milk', 'Marshmallow'],
-    color: '#5C3317',
-    accent: '#A0522D',
-  },
-]
+import { useStore } from '@/store/useStore'
+import { DRINKS } from '@/lib/menuData'
 
 export default function MenuSection() {
   const containerRef = useRef(null)
@@ -87,10 +30,10 @@ export default function MenuSection() {
   }, [])
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger)
-
     const panels = panelsRef.current.filter(Boolean)
     if (!panels.length || !sectionRef.current) return
+
+    const store = useStore.getState()
 
     // Set initial panel visibility
     gsap.set(panels[0], { opacity: 1, y: 0 })
@@ -107,7 +50,7 @@ export default function MenuSection() {
           anticipatePin: 1,
           onUpdate: (self) => {
             const p = self.progress * 4
-            useStore.getState().setCoffeeProgress(p)
+            store.setCoffeeProgress(p)
 
             // Update counter
             if (counterRef.current) {

@@ -2,7 +2,7 @@
 
 import { useProgress } from '@react-three/drei'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useStore } from '@/store/useStore'
 
 export default function Preloader() {
@@ -11,19 +11,39 @@ export default function Preloader() {
   const setIsLoading = useStore((state) => state.setIsLoading)
   const shadersCompiled = useStore((state) => state.shadersCompiled)
   const [displayProgress, setDisplayProgress] = useState(0)
+  const displayProgressRef = useRef(0)
 
   useEffect(() => {
+    displayProgressRef.current = displayProgress
+  }, [displayProgress])
+
+  useEffect(() => {
+    if (!isLoading) return
+
     const tick = setInterval(() => {
-      setDisplayProgress(prev => {
-        if (prev >= 100) return 100;
-        if (progress === 100) return Math.min(100, prev + 2);
-        if (prev < progress) return prev + 1;
-        if (prev < 90) return prev + 0.1; // Slowly fake progress even if stuck
-        return prev;
-      });
-    }, 20);
+      const prev = displayProgressRef.current
+      if (prev >= 100) {
+        clearInterval(tick)
+        return
+      }
+
+      let next = prev
+      if (progress === 100) next = Math.min(100, prev + 2)
+      else if (prev < progress) next = prev + 1
+      else if (prev < 90) next = prev + 0.1 // Slowly fake progress even if stuck
+
+      if (next !== prev) {
+        displayProgressRef.current = next
+        setDisplayProgress(next)
+      }
+
+      if (next >= 100) {
+        clearInterval(tick)
+      }
+    }, 20)
+
     return () => clearInterval(tick);
-  }, [progress]);
+  }, [isLoading, progress])
 
   useEffect(() => {
     // Only dismiss loader when BOTH asset download is complete AND shaders are compiled

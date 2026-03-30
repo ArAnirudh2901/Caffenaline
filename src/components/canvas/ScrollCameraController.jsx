@@ -25,32 +25,31 @@ const FOOTER_POS = new THREE.Vector3(0, 10.0, 5.0)
 const FOOTER_LOOK = new THREE.Vector3(0, 8.0, 0)
 
 const _pos = new THREE.Vector3()
-const _look = new THREE.Vector3()
-const _currentLook = new THREE.Vector3()
 
 export default function ScrollCameraController() {
   const { camera } = useThree()
 
   const targetPos = useRef(HERO_POS.clone())
   const targetLook = useRef(HERO_LOOK.clone())
-
-  // Initialize the current look tracker
-  _currentLook.copy(HERO_LOOK)
+  const currentLook = useRef(HERO_LOOK.clone())
 
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    let frameId = 0
+    let footerTrigger = null
+
     // Wait for GSAP to be registered by SmoothScroll
     const waitForGSAP = () => {
       if (!window.gsap || !window.ScrollTrigger) {
-        requestAnimationFrame(waitForGSAP)
+        frameId = requestAnimationFrame(waitForGSAP)
         return
       }
 
       const ScrollTrigger = window.ScrollTrigger
 
       // Footer exit — pan camera up as the cup drops off screen
-      const stFooter = ScrollTrigger.create({
+      footerTrigger = ScrollTrigger.create({
         trigger: '#footer-section',
         start: 'top bottom',
         end: 'bottom bottom',
@@ -60,18 +59,13 @@ export default function ScrollCameraController() {
           targetLook.current.lerpVectors(HERO_LOOK, FOOTER_LOOK, self.progress)
         },
       })
-
-      // Store for cleanup
-      window.__caffCameraFooterST = stFooter
     }
 
-    requestAnimationFrame(waitForGSAP)
+    frameId = requestAnimationFrame(waitForGSAP)
 
     return () => {
-      if (window.__caffCameraFooterST) {
-        window.__caffCameraFooterST.kill()
-        delete window.__caffCameraFooterST
-      }
+      cancelAnimationFrame(frameId)
+      footerTrigger?.kill()
     }
   }, [])
 
@@ -87,8 +81,8 @@ export default function ScrollCameraController() {
     }
 
     camera.position.lerp(_pos, 0.08)
-    _currentLook.lerp(targetLook.current, 0.08)
-    camera.lookAt(_currentLook)
+    currentLook.current.lerp(targetLook.current, 0.08)
+    camera.lookAt(currentLook.current)
   })
 
   return null

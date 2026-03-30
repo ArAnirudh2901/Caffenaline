@@ -1,21 +1,16 @@
 'use client'
 
 import { useRef, useEffect, useState } from 'react'
-import { useStore } from '@/store/useStore'
 import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger)
-}
+import { useStore } from '@/store/useStore'
 
 export default function BrandStorySection() {
   const sectionRef = useRef(null)
   const headlineRef = useRef(null)
   const bodyRef = useRef(null)
   const slabRef = useRef(null)
+  const speedFillRef = useRef(null)
   const [isVisible, setIsVisible] = useState(false)
-  const scrollVelocity = useStore((s) => s.scrollVelocity)
 
   // IntersectionObserver for reveal + section tracking
   useEffect(() => {
@@ -62,6 +57,26 @@ export default function BrandStorySection() {
     return () => ctx.revert()
   }, [])
 
+  useEffect(() => {
+    const applyVelocity = (velocity) => {
+      const absoluteVelocity = Math.abs(velocity)
+
+      if (speedFillRef.current) {
+        speedFillRef.current.style.height = `${Math.min(100, absoluteVelocity * 0.125)}%`
+      }
+
+      if (headlineRef.current) {
+        headlineRef.current.style.fontVariationSettings = `'wght' ${Math.min(950, 800 + absoluteVelocity * 0.4)}`
+      }
+    }
+
+    applyVelocity(useStore.getState().scrollVelocity)
+
+    return useStore.subscribe((state) => {
+      applyVelocity(state.scrollVelocity)
+    })
+  }, [])
+
   // GSAP reveal animations for content
   useEffect(() => {
     if (!isVisible) return
@@ -82,9 +97,6 @@ export default function BrandStorySection() {
     )
   }, [isVisible])
 
-  // Tone down the gauge response so normal scrolls produce a calmer fill range.
-  const speedFill = Math.min(100, Math.abs(scrollVelocity) * 0.125)
-
   return (
     <section
       ref={sectionRef}
@@ -99,8 +111,9 @@ export default function BrandStorySection() {
       >
         <div className="speedometer-track" style={{ height: '200px' }}>
           <div
+            ref={speedFillRef}
             className="speedometer-fill"
-            style={{ height: `${speedFill}%` }}
+            style={{ height: '0%' }}
           />
           {/* Notches */}
           {[...Array(11)].map((_, i) => (
@@ -137,7 +150,7 @@ export default function BrandStorySection() {
               style={{
                 color: '#4F3C32',
                 fontStyle: 'italic',
-                fontVariationSettings: `'wght' ${Math.min(950, 800 + Math.abs(scrollVelocity) * 0.4)}`,
+                fontVariationSettings: `'wght' 800`,
               }}
             >
               Defy the Ordinary

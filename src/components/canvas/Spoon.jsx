@@ -13,7 +13,7 @@ const _X = new THREE.Vector3()
 const _Z = new THREE.Vector3()
 const _mat4 = new THREE.Matrix4()
 
-export default function Spoon({ cupRadius = 1.32, liquidY = 1.52 }) {
+export default function Spoon({ liquidY = 1.52 }) {
   const spoonGroupRef = useRef()
   const timeRef = useRef(0)
 
@@ -30,7 +30,7 @@ export default function Spoon({ cupRadius = 1.32, liquidY = 1.52 }) {
   }, [])
 
   // High-frequency stirring via useFrame (zero GC pressure)
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!spoonGroupRef.current) return
     timeRef.current += delta * 1.8
 

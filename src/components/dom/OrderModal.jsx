@@ -3,57 +3,14 @@
 import { useRef, useEffect, useCallback, useState } from 'react'
 import { useStore } from '@/store/useStore'
 import gsap from 'gsap'
-
-const DRINKS = [
-  {
-    name: 'THE BASE DROP',
-    type: 'Espresso',
-    price: '$4.50',
-    color: '#3B2419',
-    accent: '#5C3D2E',
-  },
-  {
-    name: 'THE SWEET THRILL',
-    type: 'Mocha',
-    price: '$5.75',
-    color: '#4A2C2A',
-    accent: '#8B5E3C',
-  },
-  {
-    name: 'THE SMOOTH GLIDE',
-    type: 'Latte',
-    price: '$5.25',
-    color: '#A0826D',
-    accent: '#C4A882',
-  },
-  {
-    name: 'THE CLOUD NINE',
-    type: 'Cappuccino',
-    price: '$5.50',
-    color: '#6F4E37',
-    accent: '#D4A373',
-  },
-  {
-    name: 'THE COMFORTER',
-    type: 'Hot Chocolate',
-    price: '$4.75',
-    color: '#5C3317',
-    accent: '#A0522D',
-  },
-]
-
-const SIZES = [
-  { label: 'Tall', ml: '240ml', extra: '' },
-  { label: 'Grande', ml: '350ml', extra: '+$0.75' },
-  { label: 'Venti', ml: '470ml', extra: '+$1.50' },
-]
+import { DRINKS, SIZES } from '@/lib/menuData'
 
 export default function OrderModal() {
   const modalRef = useRef(null)
   const backdropRef = useRef(null)
-  const contentRef = useRef(null)
   const stepRefs = useRef([])
   const tlRef = useRef(null)
+  const advanceTimeoutRef = useRef(null)
 
   const isOpen = useStore((s) => s.orderModalOpen)
   const step = useStore((s) => s.orderStep)
@@ -68,11 +25,6 @@ export default function OrderModal() {
 
     // Kill any running animations
     if (tlRef.current) tlRef.current.kill()
-
-    // Reset step to 0 on open
-    useStore.getState().setOrderStep(0)
-    setSelectedDrink(null)
-    setSelectedSize(1)
 
     const modal = modalRef.current
     const backdrop = backdropRef.current
@@ -132,6 +84,14 @@ export default function OrderModal() {
     }
   }, [isOpen, buttonRect])
 
+  useEffect(() => {
+    return () => {
+      if (advanceTimeoutRef.current) {
+        clearTimeout(advanceTimeoutRef.current)
+      }
+    }
+  }, [])
+
   // ─── STEP TRANSITIONS ───
   useEffect(() => {
     if (!isOpen) return
@@ -185,6 +145,12 @@ export default function OrderModal() {
 
       const tl = gsap.timeline({
         onComplete: () => {
+          if (advanceTimeoutRef.current) {
+            clearTimeout(advanceTimeoutRef.current)
+            advanceTimeoutRef.current = null
+          }
+          setSelectedDrink(null)
+          setSelectedSize(1)
           useStore.getState().setOrderModalOpen(false)
           useStore.getState().setOrderStep(0)
         },
@@ -226,9 +192,15 @@ export default function OrderModal() {
 
   const handleDrinkSelect = useCallback((index) => {
     setSelectedDrink(index)
+
+    if (advanceTimeoutRef.current) {
+      clearTimeout(advanceTimeoutRef.current)
+    }
+
     // Brief delay then advance
-    setTimeout(() => {
+    advanceTimeoutRef.current = setTimeout(() => {
       useStore.getState().setOrderStep(1)
+      advanceTimeoutRef.current = null
     }, 200)
   }, [])
 
@@ -278,7 +250,6 @@ export default function OrderModal() {
       >
         {/* Glassmorphism Shell */}
         <div
-          ref={contentRef}
           className="relative overflow-hidden"
           style={{
             background: 'rgba(251, 245, 224, 0.65)',

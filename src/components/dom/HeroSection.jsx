@@ -121,7 +121,7 @@ export default function HeroSection() {
 
       const chars = titleRef.current.innerText.split('')
       titleRef.current.innerHTML = ''
-      chars.forEach((char, index) => {
+      chars.forEach((char) => {
         const span = document.createElement('span')
         span.innerText = char === ' ' ? '\u00A0' : char
         span.style.display = 'inline-block'

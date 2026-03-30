@@ -1,6 +1,6 @@
 'use client'
 
-import { useMemo, useRef, useCallback, useEffect } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import * as THREE from 'three'
 import { Center, Decal } from '@react-three/drei'
 import CoffeeLiquid from './CoffeeLiquid'
@@ -125,6 +125,11 @@ function createCeramicOnBeforeCompile(noiseTexture) {
   }
 }
 
+function deterministicNoiseValue(index) {
+  const seed = Math.sin((index + 1) * 12.9898) * 43758.5453
+  return 200 + (seed - Math.floor(seed)) * 55
+}
+
 // ---------------------------------------------------------------------------
 //  Scroll choreography constants
 // ---------------------------------------------------------------------------
@@ -139,26 +144,27 @@ export default function CoffeeCupHero() {
   const outerGroupRef = useRef()
   const tiltGroupRef = useRef()
   const innerGroupRef = useRef()
-  const groupRef = useRef()
-  const cupMeshRef = useRef()
 
   // ---- Master GSAP Scroll Choreography ----
   useEffect(() => {
     if (typeof window === 'undefined') return
 
+    let frameId = 0
+    let storyTrigger = null
+    let menuTrigger = null
+
     const waitForGSAP = () => {
       if (!window.gsap || !window.ScrollTrigger) {
-        requestAnimationFrame(waitForGSAP)
+        frameId = requestAnimationFrame(waitForGSAP)
         return
       }
 
       const gsap = window.gsap
       const ScrollTrigger = window.ScrollTrigger
-      const group = outerGroupRef.current
-      if (!group) return
+      if (!outerGroupRef.current) return
 
       // Stage 2: Hero → Brand Story — cup slides RIGHT → LEFT + rotates 360°
-      const st1 = ScrollTrigger.create({
+      storyTrigger = ScrollTrigger.create({
         trigger: '#story-section',
         start: 'top bottom',
         end: 'top top',
@@ -189,7 +195,7 @@ export default function CoffeeCupHero() {
       })
 
       // Stage 3: Brand Story → Menu — cup slides LEFT → RIGHT + rotates another 360°
-      const st2 = ScrollTrigger.create({
+      menuTrigger = ScrollTrigger.create({
         trigger: '#menu-section',
         start: 'top bottom',
         end: 'top top',
@@ -213,17 +219,14 @@ export default function CoffeeCupHero() {
           }
         },
       })
-
-      // Store ScrollTrigger refs for cleanup
-      window.__caffCupST1 = st1
-      window.__caffCupST2 = st2
     }
 
-    requestAnimationFrame(waitForGSAP)
+    frameId = requestAnimationFrame(waitForGSAP)
 
     return () => {
-      if (window.__caffCupST1) { window.__caffCupST1.kill(); delete window.__caffCupST1 }
-      if (window.__caffCupST2) { window.__caffCupST2.kill(); delete window.__caffCupST2 }
+      cancelAnimationFrame(frameId)
+      storyTrigger?.kill()
+      menuTrigger?.kill()
     }
   }, [])
 
@@ -272,7 +275,7 @@ export default function CoffeeCupHero() {
     const size = 512
     const data = new Uint8Array(size * size * 4)
     for (let i = 0; i < size * size * 4; i += 4) {
-      const val = 200 + Math.random() * 55
+      const val = deterministicNoiseValue(i)
       data[i] = val
       data[i + 1] = val
       data[i + 2] = val
@@ -289,8 +292,8 @@ export default function CoffeeCupHero() {
   const logoTexture = useMemo(() => createLogoTexture(), [])
 
   // ---- Ceramic onBeforeCompile (tri-planar bump injection) ----
-  const ceramicOnBeforeCompile = useCallback(
-    createCeramicOnBeforeCompile(noiseTexture),
+  const ceramicOnBeforeCompile = useMemo(
+    () => createCeramicOnBeforeCompile(noiseTexture),
     [noiseTexture],
   )
 
@@ -318,10 +321,10 @@ export default function CoffeeCupHero() {
         {/* Inner group handles the clean local 360 Y-spin WITHOUT wobbling the container tilt */}
         <group ref={innerGroupRef} rotation={[0, INITIAL_ROT_Y, 0]}>
           <Center>
-            <group ref={groupRef} position={[0, 0, 0]}>
+            <group position={[0, 0, 0]}>
 
             {/* Cup Body — LatheGeometry with tri-planar ceramic shader */}
-            <mesh ref={cupMeshRef} castShadow receiveShadow>
+            <mesh castShadow receiveShadow>
               <latheGeometry args={[cupPoints, 64]} />
               <meshPhysicalMaterial
                 {...ceramicProps}
@@ -329,11 +332,11 @@ export default function CoffeeCupHero() {
               />
 
               {/* Decal: "caffenaline" logo projected onto the curved surface */}
-              <Decal
-                position={[0, 0.85, 1.38]}
-                rotation={[0, 0, 0]}
-                scale={[1.6, 0.4, 0.4]}
-              >
+	              <Decal
+	                position={[0, 1.16, 1.36]}
+	                rotation={[0.16, 0, 0]}
+	                scale={[2.95, 0.76, 0.48]}
+	              >
                 <meshPhysicalMaterial
                   map={logoTexture}
                   transparent
@@ -367,7 +370,7 @@ export default function CoffeeCupHero() {
             <CoffeeLiquid radius={liquidRadius} stirring={true} />
 
             {/* Stirring spoon */}
-            <Spoon cupRadius={liquidRadius} liquidY={liquidY} />
+            <Spoon liquidY={liquidY} />
 
             </group>
           </Center>

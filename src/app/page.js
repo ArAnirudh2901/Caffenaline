@@ -3,7 +3,6 @@
 import Preloader from '@/components/dom/Preloader'
 import Navbar from '@/components/dom/Navbar'
 import OrderModal from '@/components/dom/OrderModal'
-import SmoothScroll from '@/components/dom/SmoothScroll'
 import HeroSection from '@/components/dom/HeroSection'
 import BrandStorySection from '@/components/dom/BrandStorySection'
 import MenuSection from '@/components/dom/MenuSection'
@@ -24,24 +23,19 @@ export default function Home() {
       {/* R3F Canvas — fixed background with scroll-driven camera */}
       <Scene />
 
-      {/* Scrollable DOM overlay — Lenis smooth scroll wraps all content sections */}
-      <SmoothScroll>
-        <main className="relative w-full z-20 pointer-events-none">
+      <main className="relative w-full z-20 pointer-events-none">
+        {/* Section 1: Hero — "Adrenaline in a Cup" */}
+        <HeroSection />
 
-          {/* Section 1: Hero — "Adrenaline in a Cup" */}
-          <HeroSection />
+        {/* Section 2: Brand Story — "Defy the Ordinary" */}
+        <BrandStorySection />
 
-          {/* Section 2: Brand Story — "Defy the Ordinary" */}
-          <BrandStorySection />
+        {/* Section 3: 3D Morphing Menu — beverage cards */}
+        <MenuSection />
 
-          {/* Section 3: 3D Morphing Menu — beverage cards */}
-          <MenuSection />
-
-          {/* Section 4: Operations & Footer */}
-          <FooterSection />
-
-        </main>
-      </SmoothScroll>
+        {/* Section 4: Operations & Footer */}
+        <FooterSection />
+      </main>
     </>
   )
 }

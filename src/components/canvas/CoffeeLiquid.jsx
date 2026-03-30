@@ -129,11 +129,11 @@ const MORPH_KEYFRAMES = [
 
 const SHIMMER_FLOOR = {
   foam: 1.2,
-  roughness: 0.06,
+  roughness: 0.05,
   clearcoat: 1.0,
-  clearcoatRoughness: 0.025,
-  reflectivity: 0.18,
-  envMapIntensity: 0.35,
+  clearcoatRoughness: 0.02,
+  reflectivity: 0.6,
+  envMapIntensity: 1.2,
 }
 
 function lerpVal(a, b, t) {
@@ -348,17 +348,17 @@ export default function CoffeeLiquid({ radius = 1.12, stirring = false }) {
     >
       <meshPhysicalMaterial
         color={liquidColor}
-        roughness={0.15}
-        metalness={0}
-        clearcoat={0.4}
-        clearcoatRoughness={0.1}
+        roughness={0.05}
+        metalness={0.1}
+        clearcoat={1.0}
+        clearcoatRoughness={0.02}
         transmission={0}
         thickness={0}
         attenuationColor={liquidColor}
         attenuationDistance={0.5}
         ior={1.4}
-        reflectivity={0.08}
-        envMapIntensity={0.15}
+        reflectivity={0.6}
+        envMapIntensity={1.2}
         side={THREE.DoubleSide}
         onBeforeCompile={onBeforeCompile}
       />

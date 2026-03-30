@@ -28,4 +28,17 @@ export const useStore = create((set) => ({
   // Loading State
   isLoading: true,
   setIsLoading: (loading) => set({ isLoading: loading }),
+
+  // Shader compilation state — set true after gl.compile() completes
+  shadersCompiled: false,
+  setShadersCompiled: (compiled) => set({ shadersCompiled: compiled }),
+
+  // Order Modal State
+  orderModalOpen: false,
+  setOrderModalOpen: (open) => set({ orderModalOpen: open }),
+  orderStep: 0, // 0=menu, 1=customize, 2=success
+  setOrderStep: (step) => set({ orderStep: step }),
+  // Rect of the "Order Now" button for origin-aware animation
+  orderButtonRect: null,
+  setOrderButtonRect: (rect) => set({ orderButtonRect: rect }),
 }))

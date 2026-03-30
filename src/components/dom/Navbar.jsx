@@ -1,11 +1,13 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { smoothScrollTo } from '@/lib/smoothScrollTo'
+import { useStore } from '@/store/useStore'
 
 const navLinks = [
+  { label: 'Home', href: '#hero-section' },
   { label: 'Story', href: '#story-section' },
   { label: 'Menu', href: '#menu-section' },
   { label: 'Find Us', href: '#footer-section' },
@@ -14,6 +16,24 @@ const navLinks = [
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const isLoading = useStore((state) => state.isLoading)
+  const orderBtnDesktopRef = useRef(null)
+  const orderBtnMobileRef = useRef(null)
+
+  const openOrder = useCallback((btnRef) => {
+    if (btnRef?.current) {
+      const rect = btnRef.current.getBoundingClientRect()
+      useStore.getState().setOrderButtonRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+      })
+    }
+    setMenuOpen(false)
+    useStore.getState().setOrderStep(0)
+    useStore.getState().setOrderModalOpen(true)
+  }, [])
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
@@ -31,13 +51,15 @@ export default function Navbar() {
     smoothScrollTo(href)
   }, [])
 
+  if (isLoading) return null
+
   return (
     <>
       <motion.nav
         data-navbar
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 1, delay: 2.2, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 1, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
         className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 lg:px-12 py-4 transition-all duration-500 ${
           scrolled
             ? 'border-b shadow-[0_4px_30px_rgba(74,54,45,0.08)]'
@@ -83,6 +105,8 @@ export default function Navbar() {
             </a>
           ))}
           <button
+            ref={orderBtnDesktopRef}
+            onClick={() => openOrder(orderBtnDesktopRef)}
             className="ml-4 px-6 py-2.5 rounded-full text-sm font-semibold uppercase tracking-wider transition-all duration-300 active:scale-95"
             style={{
               backgroundColor: '#4A362D',
@@ -157,6 +181,8 @@ export default function Navbar() {
                 </motion.a>
               ))}
               <motion.button
+                ref={orderBtnMobileRef}
+                onClick={() => openOrder(orderBtnMobileRef)}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, delay: navLinks.length * 0.08 }}

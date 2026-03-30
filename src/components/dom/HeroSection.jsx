@@ -100,13 +100,17 @@ export default function HeroSection() {
 
       const chars = titleRef.current.innerText.split('')
       titleRef.current.innerHTML = ''
-      chars.forEach((char) => {
+      chars.forEach((char, index) => {
         const span = document.createElement('span')
         span.innerText = char === ' ' ? '\u00A0' : char
         span.style.display = 'inline-block'
+        span.style.overflow = 'visible'
         span.style.opacity = '0'
         span.style.transform = 'translateY(120px) rotateX(90deg)'
         span.style.transformOrigin = 'bottom center'
+        if (char === ' ') {
+          span.style.width = '0.3em'
+        }
         titleRef.current.appendChild(span)
       })
 
@@ -157,9 +161,12 @@ export default function HeroSection() {
             perspective: '800px',
             color: '#4F3C32',
             fontStyle: 'italic',
+            overflow: 'visible',
+            marginRight: '-0.2em',
+            paddingRight: '0.25em',
           }}
         >
-          Adrenaline in a Cup.
+          Adrenaline in a Cup
         </h1>
       </div>
 
@@ -167,7 +174,7 @@ export default function HeroSection() {
       <div ref={subtitleWrapRef} style={{ willChange: 'transform' }}>
         <p
           ref={subtitleRef}
-          className="font-mono mt-6 text-sm md:text-base uppercase tracking-[0.3em] opacity-0"
+          className="font-mono mt-6 text-sm md:text-base font-semibold uppercase tracking-[0.3em] opacity-0"
           style={{ color: '#8B6447' }}
         >
           Fuel for the fearless.
@@ -207,7 +214,7 @@ export default function HeroSection() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ backgroundColor: '#C89F70' }} />
             <span className="relative inline-flex rounded-full h-2.5 w-2.5" style={{ backgroundColor: '#C89F70' }} />
           </span>
-          <span className="font-mono text-xs uppercase tracking-[0.25em]" style={{ color: 'rgba(139, 100, 71, 0.7)' }}>
+          <span className="font-mono text-xs font-medium uppercase tracking-[0.25em]" style={{ color: '#8B6447' }}>
             Fresh roast — Stirring live
           </span>
         </div>
@@ -220,14 +227,13 @@ export default function HeroSection() {
         style={{ willChange: 'transform' }}
       >
         <span
-          className="font-mono text-[10px] uppercase tracking-[0.5em]"
+          className="font-mono text-xs font-medium uppercase tracking-[0.25em] text-[#8B6447]"
           style={{
             writingMode: 'vertical-rl',
             textOrientation: 'mixed',
-            color: 'rgba(200, 159, 112, 0.3)',
           }}
         >
-          Hand crafted • Single origin • EST. 2026
+          Hand Crafted • Single Origin • Est. 2026
         </span>
       </div>
     </section>

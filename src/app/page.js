@@ -2,6 +2,7 @@
 
 import Preloader from '@/components/dom/Preloader'
 import Navbar from '@/components/dom/Navbar'
+import OrderModal from '@/components/dom/OrderModal'
 import SmoothScroll from '@/components/dom/SmoothScroll'
 import HeroSection from '@/components/dom/HeroSection'
 import BrandStorySection from '@/components/dom/BrandStorySection'
@@ -18,6 +19,7 @@ export default function Home() {
     <>
       <Preloader />
       <Navbar />
+      <OrderModal />
 
       {/* R3F Canvas — fixed background with scroll-driven camera */}
       <Scene />

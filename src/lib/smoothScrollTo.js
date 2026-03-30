@@ -18,10 +18,34 @@ export function smoothScrollTo(target, options = {}) {
   const lenis = window.__lenis
 
   if (lenis?.scrollTo) {
+    // Dynamically compute duration based on scroll distance for cinematic pacing:
+    // short hops (~500px) ≈ 2s, full-page traversals (~4000px+) ≈ 4.5s
+    let duration = options.duration
+    if (!duration) {
+      let distance = 2000 // fallback
+      try {
+        let targetEl = null
+        if (typeof target === 'string' && !EDGE_TARGETS.has(target)) {
+          targetEl = document.querySelector(target)
+        } else if (target instanceof HTMLElement) {
+          targetEl = target
+        }
+        if (targetEl) {
+          const targetTop = targetEl.getBoundingClientRect().top + window.scrollY + offset
+          distance = Math.abs(targetTop - window.scrollY)
+        }
+      } catch (_) { /* use fallback */ }
+
+      // Clamp between 2.5s (short) and 10s (full-page traversal)
+      duration = Math.min(10.0, Math.max(2.5, 2.5 + (distance / 550)))
+    }
+
     lenis.scrollTo(target, {
       offset,
       force: true,
       immediate,
+      duration,
+      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
     })
     return
   }

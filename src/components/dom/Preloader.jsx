@@ -9,6 +9,7 @@ export default function Preloader() {
   const { progress } = useProgress()
   const isLoading = useStore((state) => state.isLoading)
   const setIsLoading = useStore((state) => state.setIsLoading)
+  const shadersCompiled = useStore((state) => state.shadersCompiled)
   const [displayProgress, setDisplayProgress] = useState(0)
 
   useEffect(() => {
@@ -25,14 +26,14 @@ export default function Preloader() {
   }, [progress]);
 
   useEffect(() => {
-    if (displayProgress >= 100) {
-      // Simulate slight delay to ensure GPU is fully ready before snap
+    // Only dismiss loader when BOTH asset download is complete AND shaders are compiled
+    if (displayProgress >= 100 && shadersCompiled) {
       const timer = setTimeout(() => {
         setIsLoading(false)
-      }, 500)
+      }, 400)
       return () => clearTimeout(timer)
     }
-  }, [displayProgress, setIsLoading])
+  }, [displayProgress, shadersCompiled, setIsLoading])
 
   // Framer motion variants to simulate the "blast doors" opening
   const blastVariantLeft = {
@@ -60,22 +61,30 @@ export default function Preloader() {
           className="fixed inset-0 z-50 flex items-center justify-center text-[#FDF8F0] pointer-events-none"
           exit={{ opacity: 0, transition: { duration: 1.2, delay: 0.1 } }}
         >
-          {/* Adrenaline distortion shader background simulation using CSS */}
+          {/* Blast door panels — 1px overlap eliminates subpixel seam */}
           <motion.div
             variants={blastVariantLeft}
             initial="initial"
             exit="exit"
-            className="absolute left-0 w-1/2 h-full bg-[#38261F]"
+            className="absolute left-0 h-full bg-[#38261F]"
+            style={{ width: 'calc(50% + 1px)' }}
           />
           <motion.div
             variants={blastVariantRight}
             initial="initial"
             exit="exit"
-            className="absolute right-0 w-1/2 h-full bg-[#38261F]"
+            className="absolute right-0 h-full bg-[#38261F]"
+            style={{ width: 'calc(50% + 1px)' }}
           />
 
           <div className="relative z-10 flex flex-col items-center gap-4">
-            <h1 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase whitespace-nowrap overflow-clip">
+            <h1
+              className="text-4xl md:text-6xl font-black italic uppercase whitespace-nowrap overflow-clip"
+              style={{
+                wordSpacing: '0.2em',
+                letterSpacing: '1px',
+              }}
+            >
               Brewing the rush...
             </h1>
             <div className="w-64 h-1 bg-[#4F3C32] rounded-full overflow-hidden relative">

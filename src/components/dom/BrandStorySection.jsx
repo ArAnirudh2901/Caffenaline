@@ -111,8 +111,8 @@ export default function BrandStorySection() {
           ))}
         </div>
         <span
-          className="block mt-3 font-mono text-[9px] uppercase tracking-[0.3em] text-center"
-          style={{ color: 'rgba(118, 97, 97, 0.4)' }}
+          className="block mt-3 font-mono text-[11px] uppercase tracking-[0.3em] text-center"
+          style={{ color: 'rgba(118, 97, 97, 0.6)' }}
         >
           Velocity
         </span>
@@ -120,7 +120,7 @@ export default function BrandStorySection() {
 
       {/* Content — Positioned strictly on the RIGHT side to counterbalance the cup on the left */}
       <div className="w-full h-full flex items-center justify-end pr-8 lg:pr-16 pl-4 pointer-events-none">
-        <div ref={slabRef} className="w-full md:w-[55%] max-w-xl pointer-events-auto" style={{ opacity: 0 }}>
+        <div ref={slabRef} className="pointer-events-auto" style={{ opacity: 0, width: 'min(90vw, 500px)' }}>
           <div
             className="glass-panel p-10 md:p-14 tilt-card w-full"
             style={{
@@ -138,13 +138,13 @@ export default function BrandStorySection() {
                 fontVariationSettings: `'wght' ${Math.min(950, 800 + Math.abs(scrollVelocity) * 0.4)}`,
               }}
             >
-              Defy the Ordinary.
+              Defy the Ordinary
             </h2>
 
             <div ref={bodyRef} className="opacity-0 space-y-6">
               <p
                 className="text-base md:text-lg leading-relaxed"
-                style={{ color: '#4F3C32', opacity: 0.8 }}
+                style={{ color: '#4F3C32' }}
               >
                 We reject the standard morning routine. Caffenaline is about
                 conveying the perfect harmony of life-giving water and
@@ -152,7 +152,7 @@ export default function BrandStorySection() {
               </p>
               <p
                 className="text-base md:text-lg leading-relaxed"
-                style={{ color: '#4F3C32', opacity: 0.8 }}
+                style={{ color: '#4F3C32' }}
               >
                 We roast and brew our beans for those chasing their next thrill,
                 delivering a visceral, high-energy experience with every single
@@ -162,7 +162,7 @@ export default function BrandStorySection() {
               {/* Decorative divider */}
               <div className="flex items-center gap-4 pt-4">
                 <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(200, 159, 112, 0.4), transparent)' }} />
-                <span className="font-mono text-[10px] uppercase tracking-[0.4em]" style={{ color: '#C89F70' }}>
+                <span className="font-mono text-xs font-semibold uppercase tracking-[0.4em]" style={{ color: '#8B6447' }}>
                   Est. 2026
                 </span>
                 <div className="h-px flex-1" style={{ background: 'linear-gradient(to right, transparent, rgba(200, 159, 112, 0.4), transparent)' }} />

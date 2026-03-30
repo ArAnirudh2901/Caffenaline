@@ -132,8 +132,9 @@ export default function MenuSection() {
         {/* LEFT: Glassmorphism Slab */}
         <div className="w-full md:w-[55%] h-full flex items-center pl-6 lg:pl-16 pr-4 relative z-30">
           <div
-            className="w-full max-w-2xl relative pointer-events-auto"
+            className="relative pointer-events-auto"
             style={{
+              width: 'min(90vw, 640px)',
               backdropFilter: 'blur(16px)',
               WebkitBackdropFilter: 'blur(16px)',
               background: 'rgba(251, 245, 224, 0.4)',
@@ -150,8 +151,8 @@ export default function MenuSection() {
             {/* Section label + counter */}
             <div className="flex items-center gap-3 mb-8">
               <span
-                className="font-mono text-[10px] uppercase tracking-[0.4em]"
-                style={{ color: '#C89F70' }}
+                className="font-mono text-xs font-semibold uppercase tracking-[0.4em]"
+                style={{ color: '#8B6447' }}
               >
                 The Offerings
               </span>
@@ -161,14 +162,14 @@ export default function MenuSection() {
               />
               <span
                 ref={counterRef}
-                className="font-mono text-[10px]"
-                style={{ color: '#C89F70' }}
+                className="font-mono text-xs font-bold"
+                style={{ color: '#8B6447' }}
               >
                 01
               </span>
               <span
-                className="font-mono text-[10px]"
-                style={{ color: 'rgba(118, 97, 97, 0.3)' }}
+                className="font-mono text-xs"
+                style={{ color: 'rgba(118, 97, 97, 0.5)' }}
               >
                 /05
               </span>
@@ -193,8 +194,8 @@ export default function MenuSection() {
                       }}
                     />
                     <span
-                      className="font-mono text-[11px] uppercase tracking-[0.3em]"
-                      style={{ color: drink.accent }}
+                      className="font-mono text-sm font-bold uppercase tracking-[0.3em]"
+                      style={{ color: drink.color }}
                     >
                       {drink.type}
                     </span>
@@ -210,7 +211,7 @@ export default function MenuSection() {
 
                   {/* Tagline */}
                   <p
-                    className="font-mono text-xs uppercase tracking-[0.3em] mb-6"
+                    className="font-mono text-sm font-medium uppercase tracking-[0.3em] mb-6"
                     style={{ color: '#C89F70' }}
                   >
                     {drink.tagline}
@@ -219,7 +220,7 @@ export default function MenuSection() {
                   {/* Description */}
                   <p
                     className="text-base leading-relaxed mb-6"
-                    style={{ color: '#4F3C32', opacity: 0.75 }}
+                    style={{ color: '#4F3C32' }}
                   >
                     {drink.description}
                   </p>

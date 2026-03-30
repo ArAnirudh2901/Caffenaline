@@ -6,8 +6,16 @@ import { Suspense } from 'react'
 import * as THREE from 'three'
 import CoffeeCupHero from './CoffeeCupHero'
 import ScrollCameraController from './ScrollCameraController'
+import { useStore } from '@/store/useStore'
 
 export default function Scene() {
+  const handleCreated = ({ gl, scene, camera }) => {
+    // Force GPU shader compilation before revealing the scene
+    gl.compile(scene, camera)
+    // Signal that shaders are ready
+    useStore.getState().setShadersCompiled(true)
+  }
+
   return (
     <div className="fixed inset-0 w-full h-full" style={{ zIndex: -1, backgroundColor: '#fbf5e0' }}>
       <Canvas
@@ -15,6 +23,7 @@ export default function Scene() {
         dpr={[1, 2]}
         gl={{ antialias: true, alpha: false, toneMapping: 3 }}
         shadows={{ type: THREE.PCFShadowMap }}
+        onCreated={handleCreated}
       >
         <color attach="background" args={['#fbf5e0']} />
 
@@ -45,6 +54,7 @@ export default function Scene() {
         {/* Scroll-driven camera interpolation (reads scrollProgress from store) */}
         <ScrollCameraController />
 
+        {/* Force initialization of all off-screen textures and materials */}
         <Preload all />
       </Canvas>
     </div>
